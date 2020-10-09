@@ -83,7 +83,7 @@ class VisualizationTest(unittest.TestCase):
                 {
                     'related_item':
                         {
-                            'text': '0','x': 430, 'y': 160,
+                            'text': '0', 'x': 430, 'y': 160,
                             'weight': 90, 'height': 20
                         },
                     'x': 430, 'y': 130,
@@ -93,7 +93,7 @@ class VisualizationTest(unittest.TestCase):
                 {
                     'related_item':
                         {
-                            'text': '0','x': 540, 'y': 160,
+                            'text': '0', 'x': 540, 'y': 160,
                             'weight': 90, 'height': 20
                         },
                     'x': 540, 'y': 130,

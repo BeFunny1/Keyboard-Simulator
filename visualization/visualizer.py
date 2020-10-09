@@ -11,7 +11,8 @@ class WindowKeyboard:
     def setupUi(self, keyboard_simulator_window):
         self.customize_window(keyboard_simulator_window)
         buttons = self.create_buttons(keyboard_simulator_window)
-        labels = self.create_labels_and_his_related_element(keyboard_simulator_window)
+        labels = self.create_labels_and_his_related_element(
+            keyboard_simulator_window)
         line_edit = self.create_line_edit(keyboard_simulator_window)
         text_browser = self.create_text_browser(keyboard_simulator_window)
         lines = {
@@ -154,18 +155,25 @@ class WindowKeyboard:
                     keyboard_simulator_window
                 )
             else:
-                progress_bar = QtWidgets.QProgressBar(keyboard_simulator_window)
-                progress_bar.setGeometry(QtCore.QRect(
-                    data_about_related_item['x'], data_about_related_item['y'],
-                    data_about_related_item['weight'], data_about_related_item['height']
-                ))
-                progress_bar.setProperty("value", 100)
-                progress_bar.setObjectName("progressBar")
-                related_item = progress_bar
+                related_item = self.create_progress_bar(
+                    data_about_related_item['x'],
+                    data_about_related_item['y'],
+                    data_about_related_item['weight'],
+                    data_about_related_item['height'],
+                    keyboard_simulator_window
+                )
             labels_and_related_items[key] = {}
             labels_and_related_items[key]['label'] = label
             labels_and_related_items[key]['related_item'] = related_item
         return labels_and_related_items
+
+    @staticmethod
+    def create_progress_bar(x, y, weight, height, keyboard_simulator_window):
+        progress_bar = QtWidgets.QProgressBar(keyboard_simulator_window)
+        progress_bar.setGeometry(QtCore.QRect(x, y, weight, height))
+        progress_bar.setProperty("value", 25)
+        progress_bar.setObjectName("progressBar")
+        return progress_bar
 
     @staticmethod
     def create_label(x, y, weight, height, text, keyboard_simulator_window):
