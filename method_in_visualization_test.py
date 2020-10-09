@@ -5,7 +5,7 @@ from visualization import WindowKeyboard
 
 class VisualizationTest(unittest.TestCase):
     def test_get_data_for_buttons(self):
-        window = WindowKeyboard()
+        window = WindowKeyboard(None, True)
         data = window.get_data_for_buttons()
         answer = {
             'Ё': {'x': 90, 'y': 350, 'weight': 50, 'height': 50},
@@ -66,7 +66,7 @@ class VisualizationTest(unittest.TestCase):
         self.assertEqual(data, answer)
 
     def test_get_data_for_labels(self):
-        window = WindowKeyboard()
+        window = WindowKeyboard(None, True)
         data = window.get_data_for_labels()
         answer = {
             'Знаки:':
@@ -125,6 +125,7 @@ class VisualizationTest(unittest.TestCase):
                         {
                             'text': '', 'x': 170, 'y': 160,
                             'weight': 120, 'height': 20
+
                         },
                     'x': 180, 'y': 130,
                     'weight': 90, 'height': 20

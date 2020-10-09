@@ -1,10 +1,45 @@
 from PyQt5 import QtCore, QtWidgets
 
 
-class WindowKeyboard(object):
-    def __init__(self):
-        pass
-        # self.buttons = self.create_buttons()
+class WindowKeyboard:
+    def __init__(self, keyboard_simulator_window, for_test: bool):
+        if not for_test:
+            self.keyboard_simulator_window = keyboard_simulator_window
+            self.buttons, self.labels, self.line_edit, self.text_browser \
+                = self.setupUi(keyboard_simulator_window)
+
+    def setupUi(self, keyboard_simulator_window):
+        self.customize_window(keyboard_simulator_window)
+        buttons = self.create_buttons(keyboard_simulator_window)
+        labels = self.create_labels_and_his_related_element(keyboard_simulator_window)
+        line_edit = self.create_line_edit(keyboard_simulator_window)
+        text_browser = self.create_text_browser(keyboard_simulator_window)
+        lines = {
+            1: [180, 150, 90, 3],
+            2: [330, 150, 510, 3]
+        }
+        for key in lines:
+            data = lines[key]
+            self.create_line(
+                data[0], data[1],
+                data[2], data[3],
+                keyboard_simulator_window
+            )
+        QtCore.QMetaObject.connectSlotsByName(keyboard_simulator_window)
+        return buttons, labels, line_edit, text_browser
+
+    @staticmethod
+    def customize_window(keyboard_simulator_window):
+        keyboard_simulator_window.setObjectName("KeyboardSimulator")
+        keyboard_simulator_window.setEnabled(True)
+        keyboard_simulator_window.resize(1024, 768)
+        keyboard_simulator_window.setMinimumSize(QtCore.QSize(1024, 768))
+        keyboard_simulator_window.setMaximumSize(QtCore.QSize(1024, 768))
+        keyboard_simulator_window.setBaseSize(QtCore.QSize(1024, 768))
+        keyboard_simulator_window.setAutoFillBackground(False)
+        keyboard_simulator_window.setSizeGripEnabled(False)
+        keyboard_simulator_window.setModal(False)
+        keyboard_simulator_window.setWindowTitle("Клавиатурный тренажёр")
 
     @staticmethod
     def get_data_for_buttons():
@@ -50,11 +85,11 @@ class WindowKeyboard(object):
             data[key]['height'] = special_keys[key][3]
         return data
 
-    def create_buttons(self):
+    def create_buttons(self, keyboard_simulator_window):
         data = self.get_data_for_buttons()
         buttons = {}
         for key in data.keys():
-            button = QtWidgets.QPushButton(self.keyboard_window)
+            button = QtWidgets.QPushButton(keyboard_simulator_window)
             button.setEnabled(True)
             button.setGeometry(
                 QtCore.QRect(
@@ -67,7 +102,7 @@ class WindowKeyboard(object):
             button.setObjectName('button_' + key)
             button.setText(key)
             buttons[key] = button
-        return button
+        return buttons
 
     @staticmethod
     def get_data_for_labels():
@@ -100,13 +135,14 @@ class WindowKeyboard(object):
             index += 1
         return data
 
-    def create_labels_and_his_related_element(self):
+    def create_labels_and_his_related_element(self, keyboard_simulator_window):
         data = self.get_data_for_labels()
         labels_and_related_items = {}
         for key in data.keys():
             label = self.create_label(
-                data[key]['x'], data[key]['y'],
-                data[key]['weight'], data[key]['height'], key)
+                data[key]['x'], data[key]['y'], data[key]['weight'],
+                data[key]['height'], key, keyboard_simulator_window
+            )
             data_about_related_item = data[key]['related_item']
             if key != 'Прогресс:':
                 related_item = self.create_label(
@@ -114,10 +150,11 @@ class WindowKeyboard(object):
                     data_about_related_item['y'],
                     data_about_related_item['weight'],
                     data_about_related_item['height'],
-                    data_about_related_item['text']
+                    data_about_related_item['text'],
+                    keyboard_simulator_window
                 )
             else:
-                progress_bar = QtWidgets.QProgressBar(self.keyboard_window)
+                progress_bar = QtWidgets.QProgressBar(keyboard_simulator_window)
                 progress_bar.setGeometry(QtCore.QRect(
                     data_about_related_item['x'], data_about_related_item['y'],
                     data_about_related_item['weight'], data_about_related_item['height']
@@ -130,8 +167,9 @@ class WindowKeyboard(object):
             labels_and_related_items[key]['related_item'] = related_item
         return labels_and_related_items
 
-    def create_label(self, x, y, weight, height, text):
-        label = QtWidgets.QLabel(self.keyboard_window)
+    @staticmethod
+    def create_label(x, y, weight, height, text, keyboard_simulator_window):
+        label = QtWidgets.QLabel(keyboard_simulator_window)
         label.setGeometry(QtCore.QRect(x, y, weight, height))
         label.setTextFormat(QtCore.Qt.AutoText)
         label.setAlignment(QtCore.Qt.AlignCenter)
@@ -139,40 +177,25 @@ class WindowKeyboard(object):
         label.setText(text)
         return label
 
-    def setupUi(self, keyboard_window):
-        self.keyboard_window = keyboard_window
-        buttons = self.create_buttons()
-        labels = self.create_labels_and_his_related_element()
-        self.keyboard_window.setObjectName("KeyboardSimulator")
-        self.keyboard_window.setEnabled(True)
-        self.keyboard_window.resize(1024, 768)
-        self.keyboard_window.setMinimumSize(QtCore.QSize(1024, 768))
-        self.keyboard_window.setMaximumSize(QtCore.QSize(1024, 768))
-        self.keyboard_window.setBaseSize(QtCore.QSize(1024, 768))
-        self.keyboard_window.setAutoFillBackground(False)
-        self.keyboard_window.setSizeGripEnabled(False)
-        self.keyboard_window.setModal(False)
-        self.lineEdit = QtWidgets.QLineEdit(self.keyboard_window)
-        self.lineEdit.setGeometry(QtCore.QRect(110, 250, 811, 91))
-        self.lineEdit.setText("")
-        self.lineEdit.setObjectName("lineEdit")
-        self.textBrowser = QtWidgets.QTextBrowser(self.keyboard_window)
-        self.textBrowser.setGeometry(QtCore.QRect(110, 201, 811, 41))
-        self.textBrowser.setObjectName("textBrowser")
-        self.line = QtWidgets.QFrame(self.keyboard_window)
-        self.line.setGeometry(QtCore.QRect(180, 150, 90, 3))
-        self.line.setFrameShape(QtWidgets.QFrame.HLine)
-        self.line.setFrameShadow(QtWidgets.QFrame.Sunken)
-        self.line.setObjectName("line")
-        self.line_2 = QtWidgets.QFrame(self.keyboard_window)
-        self.line_2.setGeometry(QtCore.QRect(330, 150, 510, 3))
-        self.line_2.setFrameShape(QtWidgets.QFrame.HLine)
-        self.line_2.setFrameShadow(QtWidgets.QFrame.Sunken)
-        self.line_2.setObjectName("line_2")
+    @staticmethod
+    def create_line_edit(keyboard_simulator_window):
+        line_edit = QtWidgets.QLineEdit(keyboard_simulator_window)
+        line_edit.setGeometry(QtCore.QRect(110, 250, 811, 91))
+        line_edit.setText('')
+        line_edit.setObjectName("lineEdit")
+        return line_edit
 
-        self.retranslateUi(self.keyboard_window)
-        QtCore.QMetaObject.connectSlotsByName(self.keyboard_window)
+    @staticmethod
+    def create_text_browser(keyboard_simulator_window):
+        text_browser = QtWidgets.QTextBrowser(keyboard_simulator_window)
+        text_browser.setGeometry(QtCore.QRect(110, 201, 811, 41))
+        text_browser.setObjectName("textBrowser")
+        return text_browser
 
-    def retranslateUi(self, KeyboardSimulator):
-        _translate = QtCore.QCoreApplication.translate
-        KeyboardSimulator.setWindowTitle(_translate("KeyboardSimulator", "Клавиатурный тренажёр"))
+    @staticmethod
+    def create_line(x, y, weight, height, keyboard_simulator_window):
+        line = QtWidgets.QFrame(keyboard_simulator_window)
+        line.setGeometry(QtCore.QRect(x, y, weight, height))
+        line.setFrameShape(QtWidgets.QFrame.HLine)
+        line.setFrameShadow(QtWidgets.QFrame.Sunken)
+        line.setObjectName("line")

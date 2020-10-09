@@ -5,8 +5,7 @@ from visualization import WindowKeyboard
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
-    KeyboardSimulator = QtWidgets.QDialog()
-    ui = WindowKeyboard()
-    ui.setupUi(KeyboardSimulator)
-    KeyboardSimulator.show()
+    keyboard_simulator_window = QtWidgets.QDialog()
+    user_interface = WindowKeyboard(keyboard_simulator_window, False)
+    keyboard_simulator_window.show()
     sys.exit(app.exec_())
