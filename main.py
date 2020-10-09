@@ -1,7 +1,7 @@
 import sys
 from PyQt5 import QtWidgets
 
-from visualization import WindowKeyboard
+from visualization.visualizer import WindowKeyboard
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
