@@ -1,11 +1,15 @@
 import sys
-from PyQt5 import QtWidgets
+from PyQt5.QtWidgets import QApplication
 
-from visualization.visualizer import WindowKeyboard
+from simulator_logic.basic_logic import Simulator
+from visualization.visualizer import MainWindowKeyboard
 
 if __name__ == '__main__':
-    app = QtWidgets.QApplication(sys.argv)
-    keyboard_simulator_window = QtWidgets.QDialog()
-    user_interface = WindowKeyboard(keyboard_simulator_window, for_test=False)
-    keyboard_simulator_window.show()
+    app = QApplication(sys.argv)
+    user_interface = MainWindowKeyboard(for_test=False)
+
+    simulator = Simulator(user_interface)
+
+    user_interface.establish_communication(simulator.activity)
+    user_interface.show()
     sys.exit(app.exec_())

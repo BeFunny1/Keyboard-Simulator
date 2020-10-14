@@ -1,20 +1,81 @@
 from PyQt5 import QtCore, QtWidgets
+from PyQt5.QtWidgets import QMainWindow
 
 
-class WindowKeyboard:
-    def __init__(self, keyboard_simulator_window, for_test: bool):
+class MainWindowKeyboard(QMainWindow):
+    def __init__(self, for_test: bool):
         if not for_test:
-            self.keyboard_simulator_window = keyboard_simulator_window
-            self.buttons, self.labels, self.line_edit, self.text_browser \
-                = self.setupUi(keyboard_simulator_window)
+            QMainWindow.__init__(self)
+            self.buttons, self.labels, self.text_label, self.line_label \
+                = self.setupUi(self)
+            self.logic_activity = None
+
+    @staticmethod
+    def split_a_string_by_index(line: str, index: int):
+        line_after_symbol = ''
+        symbol = ''
+        line_before_symbol = ''
+        for index_symbol in range(len(line)):
+            if index_symbol < index:
+                line_after_symbol += line[index_symbol]
+            elif index_symbol == index:
+                symbol = line[index_symbol]
+            elif index_symbol > index:
+                line_before_symbol += line[index_symbol]
+        return line_after_symbol, symbol, line_before_symbol
+
+    def select_letter_in_text(self, line: str, index: int):
+        line_after_symbol, symbol, line_before_symbol \
+            = self.split_a_string_by_index(line, index)
+        symbol = '[' + symbol + ']'
+        return line_after_symbol + symbol + line_before_symbol
+
+    def update_labels(self, accuracy, progress, number_invalid_symbols, number_entered_symbols):
+        self.labels['Знаки:']['related_item'].setText(str(number_entered_symbols))
+        self.labels['Ошибки:']['related_item'].setText(str(number_invalid_symbols))
+        self.labels['Точность:']['related_item'].setText(str(accuracy) + '%')
+        self.labels['Прогресс:']['related_item'].setValue(progress)
+
+    def establish_communication(self, activity):
+        self.logic_activity = activity
+
+    def keyPressEvent(self, event):
+        self.logic_activity(event.text(), event.key())
+
+    def point_to_the_button(self, key: str):
+        keyboard_shortcuts = {
+            '!': ['1', 'Shift_R', 'Shift_L'], '"': ['2', 'Shift_R', 'Shift_L'],
+            '№': ['3', 'Shift_R', 'Shift_L'], ';': ['4', 'Shift_R', 'Shift_L'],
+            '%': ['5', 'Shift_R', 'Shift_L'], ':': ['6', 'Shift_R', 'Shift_L'],
+            '?': ['7', 'Shift_R', 'Shift_L'], '*': ['8', 'Shift_R', 'Shift_L'],
+            '(': ['9', 'Shift_R', 'Shift_L'], ')': ['0', 'Shift_R', 'Shift_L'],
+            '-': ['2', 'Shift_R', 'Shift_L'], '+': ['=', 'Shift_R', 'Shift_L'],
+            '/': ['2', 'Shift_R', 'Shift_L'], ',': ['.', 'Shift_R', 'Shift_L']
+        }
+        if key in keyboard_shortcuts:
+            key = keyboard_shortcuts[key]
+        for button in self.buttons:
+            if button not in key:
+                self.buttons[button].setEnabled(False)
+                self.buttons[button].setDefault(False)
+            else:
+                self.buttons[button].setEnabled(True)
+                self.buttons[button].setDefault(True)
+
+    def set_text_and_select_letter(self, text: str, index: int):
+        text = self.select_letter_in_text(text, index)
+        self.text_label.setText(text)
+
+    def set_line_label_text(self, text: str):
+        self.line_label.setText(text)
 
     def setupUi(self, keyboard_simulator_window):
         self.customize_window(keyboard_simulator_window)
         buttons = self.create_buttons(keyboard_simulator_window)
         labels = self.create_labels_and_his_related_element(
             keyboard_simulator_window)
-        line_edit = self.create_line_edit(keyboard_simulator_window)
-        text_browser = self.create_text_browser(keyboard_simulator_window)
+        line_label = self.create_line_label(keyboard_simulator_window)
+        text_label = self.create_text_label(keyboard_simulator_window)
         lines = {
             1: [180, 150, 90, 3],
             2: [330, 150, 510, 3]
@@ -27,7 +88,7 @@ class WindowKeyboard:
                 keyboard_simulator_window
             )
         QtCore.QMetaObject.connectSlotsByName(keyboard_simulator_window)
-        return buttons, labels, line_edit, text_browser
+        return buttons, labels, text_label, line_label
 
     @staticmethod
     def customize_window(keyboard_simulator_window):
@@ -38,8 +99,6 @@ class WindowKeyboard:
         keyboard_simulator_window.setMaximumSize(QtCore.QSize(1024, 768))
         keyboard_simulator_window.setBaseSize(QtCore.QSize(1024, 768))
         keyboard_simulator_window.setAutoFillBackground(False)
-        keyboard_simulator_window.setSizeGripEnabled(False)
-        keyboard_simulator_window.setModal(False)
         keyboard_simulator_window.setWindowTitle("Клавиатурный тренажёр")
 
     @staticmethod
@@ -73,7 +132,7 @@ class WindowKeyboard:
             'Tab': [90, 410, 70, 50],
             'Caps Lock': [90, 470, 90, 50],
             'Shift_L': [90, 530, 120, 50],
-            'Space': [280, 590, 470, 50],
+            ' ': [280, 590, 470, 50],
             'Backspace': [870, 350, 70, 50],
             'Enter': [850, 470, 90, 50],
             'Shift_R': [820, 530, 120, 50]
@@ -108,9 +167,8 @@ class WindowKeyboard:
     @staticmethod
     def get_data_for_labels():
         labels = {
-            'Знаки:': '0', 'Слов в минуту:': '0',
-            'Ошибки:': '0', 'Точность:': '100%',
-            'Время:': '0:00', 'Прогресс:': ''
+            'Знаки:': '0', 'Ошибки:': '0',
+            'Точность:': '100%', 'Прогресс:': ''
         }
         data = {}
         index = 0
@@ -171,7 +229,7 @@ class WindowKeyboard:
     def create_progress_bar(x, y, weight, height, keyboard_simulator_window):
         progress_bar = QtWidgets.QProgressBar(keyboard_simulator_window)
         progress_bar.setGeometry(QtCore.QRect(x, y, weight, height))
-        progress_bar.setProperty("value", 25)
+        progress_bar.setProperty("value", 0)
         progress_bar.setObjectName("progressBar")
         return progress_bar
 
@@ -186,19 +244,21 @@ class WindowKeyboard:
         return label
 
     @staticmethod
-    def create_line_edit(keyboard_simulator_window):
-        line_edit = QtWidgets.QLineEdit(keyboard_simulator_window)
-        line_edit.setGeometry(QtCore.QRect(110, 250, 811, 91))
-        line_edit.setText('')
-        line_edit.setObjectName("lineEdit")
-        return line_edit
+    def create_line_label(keyboard_simulator_window):
+        line_label = QtWidgets.QLabel(keyboard_simulator_window)
+        line_label.setGeometry(QtCore.QRect(110, 300, 810, 40))
+        line_label.setObjectName("line_label")
+        line_label.setStyleSheet("border: 1px solid black;")
+        return line_label
 
     @staticmethod
-    def create_text_browser(keyboard_simulator_window):
-        text_browser = QtWidgets.QTextBrowser(keyboard_simulator_window)
-        text_browser.setGeometry(QtCore.QRect(110, 201, 811, 41))
-        text_browser.setObjectName("textBrowser")
-        return text_browser
+    def create_text_label(keyboard_simulator_window):
+        text_label = QtWidgets.QLabel(keyboard_simulator_window)
+        text_label.setGeometry(QtCore.QRect(110, 200, 810, 90))
+        text_label.setObjectName("text_label")
+        text_label.setWordWrap(True)
+        text_label.setStyleSheet("border: 1px solid black;")
+        return text_label
 
     @staticmethod
     def create_line(x, y, weight, height, keyboard_simulator_window):

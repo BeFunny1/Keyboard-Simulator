@@ -1,12 +1,14 @@
 import unittest
 
-from visualization.visualizer import WindowKeyboard
+from visualization.visualizer import MainWindowKeyboard
 
 
 class VisualizationTest(unittest.TestCase):
+    def setUp(self):
+        self.window = MainWindowKeyboard(for_test=True)
+
     def test_get_data_for_buttons(self):
-        window = WindowKeyboard(None, for_test=True)
-        data = window.get_data_for_buttons()
+        data = self.window.get_data_for_buttons()
         answer = {
             'Ё': {'x': 90, 'y': 350, 'weight': 50, 'height': 50},
             '1': {'x': 150, 'y': 350, 'weight': 50, 'height': 50},
@@ -58,7 +60,7 @@ class VisualizationTest(unittest.TestCase):
             'Tab': {'x': 90, 'y': 410, 'weight': 70, 'height': 50},
             'Caps Lock': {'x': 90, 'y': 470, 'weight': 90, 'height': 50},
             'Shift_L': {'x': 90, 'y': 530, 'weight': 120, 'height': 50},
-            'Space': {'x': 280, 'y': 590, 'weight': 470, 'height': 50},
+            ' ': {'x': 280, 'y': 590, 'weight': 470, 'height': 50},
             'Backspace': {'x': 870, 'y': 350, 'weight': 70, 'height': 50},
             'Enter': {'x': 850, 'y': 470, 'weight': 90, 'height': 50},
             'Shift_R': {'x': 820, 'y': 530, 'weight': 120, 'height': 50}
@@ -66,8 +68,7 @@ class VisualizationTest(unittest.TestCase):
         self.assertEqual(data, answer)
 
     def test_get_data_for_labels(self):
-        window = WindowKeyboard(None, for_test=True)
-        data = window.get_data_for_labels()
+        data = self.window.get_data_for_labels()
         answer = {
             'Знаки:':
                 {
@@ -79,7 +80,7 @@ class VisualizationTest(unittest.TestCase):
                     'x': 320, 'y': 130,
                     'weight': 90, 'height': 20
                 },
-            'Слов в минуту:':
+            'Ошибки:':
                 {
                     'related_item':
                         {
@@ -89,34 +90,14 @@ class VisualizationTest(unittest.TestCase):
                     'x': 430, 'y': 130,
                     'weight': 90, 'height': 20
                 },
-            'Ошибки:':
-                {
-                    'related_item':
-                        {
-                            'text': '0', 'x': 540, 'y': 160,
-                            'weight': 90, 'height': 20
-                        },
-                    'x': 540, 'y': 130,
-                    'weight': 90, 'height': 20
-                },
             'Точность:':
                 {
                     'related_item':
                         {
-                            'text': '100%', 'x': 650, 'y': 160,
+                            'text': '100%', 'x': 540, 'y': 160,
                             'weight': 90, 'height': 20
                         },
-                    'x': 650, 'y': 130,
-                    'weight': 90, 'height': 20
-                },
-            'Время:':
-                {
-                    'related_item':
-                        {
-                            'text': '0:00', 'x': 760, 'y': 160,
-                            'weight': 90, 'height': 20
-                        },
-                    'x': 760, 'y': 130,
+                    'x': 540, 'y': 130,
                     'weight': 90, 'height': 20
                 },
             'Прогресс:':
@@ -132,6 +113,27 @@ class VisualizationTest(unittest.TestCase):
                 }
         }
         self.assertEqual(answer, data)
+
+    def test_split_a_string_by_index_empty_string(self):
+        self.assertEqual(self.window.split_a_string_by_index('', 0), ('', '', ''))
+
+    def test_split_a_string_by_index_correct_string(self):
+        line = 'abrakadabra'
+        self.assertEqual(
+            self.window.split_a_string_by_index(line, 3),
+            ('abr', 'a', 'kadabra'))
+
+    def test_split_a_string_by_index_correct_string_with_space(self):
+        line = 'abrak adabra'
+        self.assertEqual(
+            self.window.split_a_string_by_index(line, 5),
+            ('abrak', ' ', 'adabra'))
+
+    def test_select_letter_in_text(self):
+        line = 'abrakadabra'
+        self.assertEqual(
+            self.window.select_letter_in_text(line, 5),
+            'abrak[a]dabra')
 
 
 if __name__ == '__main__':
