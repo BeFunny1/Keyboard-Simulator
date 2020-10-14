@@ -1,8 +1,7 @@
 import sys
 
 from PyQt5 import QtCore, QtWidgets, Qt
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QMessageBox, QMainWindow, QApplication, QPushButton, QLayout, \
-    QGridLayout, QFormLayout
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QMainWindow, QApplication, QPushButton, QFormLayout
 
 
 class KpeWindow(QWidget):
@@ -13,11 +12,8 @@ class KpeWindow(QWidget):
         main = QFormLayout(self)
 
         self.label = QLabel(self)
-        # self.button = QPushButton()
-        # self.button.setGeometry(QtCore.QRect(150, 410, 70, 50))
         self.label.setText('Test the keyPressEvent')
         main.addWidget(self.label)
-        # main.addWidget(self.button)
 
         self.adjustSize()
         self.setLayout(main)

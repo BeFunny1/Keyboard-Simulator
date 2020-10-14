@@ -115,7 +115,8 @@ class VisualizationTest(unittest.TestCase):
         self.assertEqual(answer, data)
 
     def test_split_a_string_by_index_empty_string(self):
-        self.assertEqual(self.window.split_a_string_by_index('', 0), ('', '', ''))
+        self.assertEqual(
+            self.window.split_a_string_by_index('', 0), ('', '', ''))
 
     def test_split_a_string_by_index_correct_string(self):
         line = 'abrakadabra'

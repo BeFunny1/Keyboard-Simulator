@@ -30,11 +30,16 @@ class MainWindowKeyboard(QMainWindow):
         symbol = '[' + symbol + ']'
         return line_after_symbol + symbol + line_before_symbol
 
-    def update_labels(self, accuracy, progress, number_invalid_symbols, number_entered_symbols):
-        self.labels['Знаки:']['related_item'].setText(str(number_entered_symbols))
-        self.labels['Ошибки:']['related_item'].setText(str(number_invalid_symbols))
-        self.labels['Точность:']['related_item'].setText(str(accuracy) + '%')
-        self.labels['Прогресс:']['related_item'].setValue(progress)
+    def update_labels(self, accuracy, progress,
+                      number_invalid_symbols, number_entered_symbols):
+        self.labels['Знаки:']['related_item'].setText(
+            str(number_entered_symbols))
+        self.labels['Ошибки:']['related_item'].setText(
+            str(number_invalid_symbols))
+        self.labels['Точность:']['related_item'].setText(
+            str(accuracy) + '%')
+        self.labels['Прогресс:']['related_item'].setValue(
+            progress)
 
     def establish_communication(self, activity):
         self.logic_activity = activity
