@@ -1,16 +1,13 @@
 class WorkWithText:
-    def __init__(self):
-        pass
-
     @staticmethod
-    def read_file(file: str):
+    def read_file(file: str) -> str:
         with open('./texts/' + file, 'r', encoding='utf-8') as file:
             text = file.read()
         return text
 
     @staticmethod
-    def split(line: str):
-        symbols = [char for char in line]
+    def split(line: str) -> list:
+        symbols = list(line)
         symbols.reverse()
         return symbols
 

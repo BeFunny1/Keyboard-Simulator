@@ -1,0 +1,9 @@
+{
+  "!": ["1", "Shift_R", "Shift_L"], "\"": ["2", "Shift_R", "Shift_L"],
+  "№": ["3", "Shift_R", "Shift_L"], ";": ["4", "Shift_R", "Shift_L"],
+  "%": ["5", "Shift_R", "Shift_L"], ":": ["6", "Shift_R", "Shift_L"],
+  "?": ["7", "Shift_R", "Shift_L"], "*": ["8", "Shift_R", "Shift_L"],
+  "(": ["9", "Shift_R", "Shift_L"], ")": ["0", "Shift_R", "Shift_L"],
+  "-": ["2", "Shift_R", "Shift_L"], "+": ["=", "Shift_R", "Shift_L"],
+  "/": ["2", "Shift_R", "Shift_L"], ",": [".", "Shift_R", "Shift_L"]
+}

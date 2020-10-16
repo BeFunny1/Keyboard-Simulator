@@ -1,9 +1,12 @@
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import QMainWindow
 
+from work_with_confg.config_handler import ConfigHandler
+
 
 class MainWindowKeyboard(QMainWindow):
     def __init__(self, for_test: bool):
+        self.config_handler = ConfigHandler()
         if not for_test:
             QMainWindow.__init__(self)
             self.buttons, self.labels, self.text_label, self.line_label \
@@ -11,23 +14,10 @@ class MainWindowKeyboard(QMainWindow):
             self.logic_activity = None
 
     @staticmethod
-    def split_a_string_by_index(line: str, index: int):
-        line_after_symbol = ''
-        symbol = ''
-        line_before_symbol = ''
-        for index_symbol in range(len(line)):
-            if index_symbol < index:
-                line_after_symbol += line[index_symbol]
-            elif index_symbol == index:
-                symbol = line[index_symbol]
-            elif index_symbol > index:
-                line_before_symbol += line[index_symbol]
-        return line_after_symbol, symbol, line_before_symbol
-
-    def select_letter_in_text(self, line: str, index: int):
+    def select_letter_in_text(line: str, index: int) -> str:
         line_after_symbol, symbol, line_before_symbol \
-            = self.split_a_string_by_index(line, index)
-        symbol = '[' + symbol + ']'
+            = line[:index], line[index], line[1 + index:]
+        symbol = f'[{symbol}]'
         return line_after_symbol + symbol + line_before_symbol
 
     def update_labels(self, accuracy, progress,
@@ -48,24 +38,14 @@ class MainWindowKeyboard(QMainWindow):
         self.logic_activity(event.text(), event.key())
 
     def point_to_the_button(self, key: str):
-        keyboard_shortcuts = {
-            '!': ['1', 'Shift_R', 'Shift_L'], '"': ['2', 'Shift_R', 'Shift_L'],
-            '№': ['3', 'Shift_R', 'Shift_L'], ';': ['4', 'Shift_R', 'Shift_L'],
-            '%': ['5', 'Shift_R', 'Shift_L'], ':': ['6', 'Shift_R', 'Shift_L'],
-            '?': ['7', 'Shift_R', 'Shift_L'], '*': ['8', 'Shift_R', 'Shift_L'],
-            '(': ['9', 'Shift_R', 'Shift_L'], ')': ['0', 'Shift_R', 'Shift_L'],
-            '-': ['2', 'Shift_R', 'Shift_L'], '+': ['=', 'Shift_R', 'Shift_L'],
-            '/': ['2', 'Shift_R', 'Shift_L'], ',': ['.', 'Shift_R', 'Shift_L']
-        }
+        keyboard_shortcuts \
+            = self.config_handler.read_config_file('keyboard_shortcuts.json')
         if key in keyboard_shortcuts:
             key = keyboard_shortcuts[key]
         for button in self.buttons:
-            if button not in key:
-                self.buttons[button].setEnabled(False)
-                self.buttons[button].setDefault(False)
-            else:
-                self.buttons[button].setEnabled(True)
-                self.buttons[button].setDefault(True)
+            result = button in key
+            self.buttons[button].setEnabled(result)
+            self.buttons[button].setDefault(result)
 
     def set_text_and_select_letter(self, text: str, index: int):
         text = self.select_letter_in_text(text, index)
@@ -74,7 +54,8 @@ class MainWindowKeyboard(QMainWindow):
     def set_line_label_text(self, text: str):
         self.line_label.setText(text)
 
-    def setupUi(self, keyboard_simulator_window):
+    def setupUi(self, keyboard_simulator_window) \
+            -> (dict, dict, QtWidgets.QLabel, QtWidgets.QLabel):
         self.customize_window(keyboard_simulator_window)
         buttons = self.create_buttons(keyboard_simulator_window)
         labels = self.create_labels_and_his_related_element(
@@ -106,23 +87,11 @@ class MainWindowKeyboard(QMainWindow):
         keyboard_simulator_window.setAutoFillBackground(False)
         keyboard_simulator_window.setWindowTitle("Клавиатурный тренажёр")
 
-    @staticmethod
-    def get_data_for_buttons():
+    def get_data_for_buttons(self) -> dict:
         data = {}
-        first_row = ['Ё', '1', '2', '3', '4', '5', '6',
-                     '7', '8', '9', '0', '-', '=']
-        second_row = ['Й', 'Ц', 'У', 'К', 'Е', 'Н', 'Г',
-                      'Ш', 'Щ', 'З', 'Х', 'Ъ', '\\']
-        third_row = ['Ф', 'Ы', 'В', 'А', 'П', 'Р',
-                     'О', 'Л', 'Д', 'Ж', 'Э']
-        fourth_row = ['Я', 'Ч', 'С', 'М', 'И',
-                      'Т', 'Ь', 'Б', 'Ю', '.']
-        rows_and_indexes_for_row = {
-            1: {'row': first_row, 'indexes': (90, 350)},
-            2: {'row': second_row, 'indexes': (170, 410)},
-            3: {'row': third_row, 'indexes': (190, 470)},
-            4: {'row': fourth_row, 'indexes': (220, 530)}
-        }
+        rows_and_indexes_for_row =\
+            self.config_handler.read_config_file(
+                'rows_and_indexes_for_row.json')
         for index in rows_and_indexes_for_row:
             row = rows_and_indexes_for_row[index]['row']
             x_start, y = rows_and_indexes_for_row[index]['indexes']
@@ -133,15 +102,8 @@ class MainWindowKeyboard(QMainWindow):
                 data[key_name]['y'] = y
                 data[key_name]['weight'] = 50
                 data[key_name]['height'] = 50
-        special_keys = {
-            'Tab': [90, 410, 70, 50],
-            'Caps Lock': [90, 470, 90, 50],
-            'Shift_L': [90, 530, 120, 50],
-            ' ': [280, 590, 470, 50],
-            'Backspace': [870, 350, 70, 50],
-            'Enter': [850, 470, 90, 50],
-            'Shift_R': [820, 530, 120, 50]
-        }
+        special_keys \
+            = self.config_handler.read_config_file('special_keys.json')
         for key in special_keys.keys():
             data[key] = {}
             data[key]['x'] = special_keys[key][0]
@@ -150,7 +112,7 @@ class MainWindowKeyboard(QMainWindow):
             data[key]['height'] = special_keys[key][3]
         return data
 
-    def create_buttons(self, keyboard_simulator_window):
+    def create_buttons(self, keyboard_simulator_window) -> dict:
         data = self.get_data_for_buttons()
         buttons = {}
         for key in data.keys():
@@ -169,12 +131,8 @@ class MainWindowKeyboard(QMainWindow):
             buttons[key] = button
         return buttons
 
-    @staticmethod
-    def get_data_for_labels():
-        labels = {
-            'Знаки:': '0', 'Ошибки:': '0',
-            'Точность:': '100%', 'Прогресс:': ''
-        }
+    def get_data_for_labels(self) -> dict:
+        labels = self.config_handler.read_config_file('labels.json')
         data = {}
         index = 0
         for label in labels.keys():
@@ -199,30 +157,24 @@ class MainWindowKeyboard(QMainWindow):
             index += 1
         return data
 
-    def create_labels_and_his_related_element(self, keyboard_simulator_window):
+    def create_labels_and_his_related_element(
+            self, keyboard_simulator_window) -> dict:
         data = self.get_data_for_labels()
         labels_and_related_items = {}
         for key in data.keys():
             label = self.create_label(
-                data[key]['x'], data[key]['y'], data[key]['weight'],
-                data[key]['height'], key, keyboard_simulator_window
+                data[key], key, keyboard_simulator_window
             )
             data_about_related_item = data[key]['related_item']
             if key != 'Прогресс:':
                 related_item = self.create_label(
-                    data_about_related_item['x'],
-                    data_about_related_item['y'],
-                    data_about_related_item['weight'],
-                    data_about_related_item['height'],
+                    data_about_related_item,
                     data_about_related_item['text'],
                     keyboard_simulator_window
                 )
             else:
                 related_item = self.create_progress_bar(
-                    data_about_related_item['x'],
-                    data_about_related_item['y'],
-                    data_about_related_item['weight'],
-                    data_about_related_item['height'],
+                    data_about_related_item,
                     keyboard_simulator_window
                 )
             labels_and_related_items[key] = {}
@@ -231,7 +183,10 @@ class MainWindowKeyboard(QMainWindow):
         return labels_and_related_items
 
     @staticmethod
-    def create_progress_bar(x, y, weight, height, keyboard_simulator_window):
+    def create_progress_bar(data, keyboard_simulator_window) \
+            -> QtWidgets.QProgressBar:
+        x, y, weight, height \
+            = data['x'], data['y'], data['weight'], data['height']
         progress_bar = QtWidgets.QProgressBar(keyboard_simulator_window)
         progress_bar.setGeometry(QtCore.QRect(x, y, weight, height))
         progress_bar.setProperty("value", 0)
@@ -239,7 +194,10 @@ class MainWindowKeyboard(QMainWindow):
         return progress_bar
 
     @staticmethod
-    def create_label(x, y, weight, height, text, keyboard_simulator_window):
+    def create_label(data, text, keyboard_simulator_window) \
+            -> QtWidgets.QLabel:
+        x, y, weight, height \
+            = data['x'], data['y'], data['weight'], data['height']
         label = QtWidgets.QLabel(keyboard_simulator_window)
         label.setGeometry(QtCore.QRect(x, y, weight, height))
         label.setTextFormat(QtCore.Qt.AutoText)
@@ -249,7 +207,7 @@ class MainWindowKeyboard(QMainWindow):
         return label
 
     @staticmethod
-    def create_line_label(keyboard_simulator_window):
+    def create_line_label(keyboard_simulator_window) -> QtWidgets.QLabel:
         line_label = QtWidgets.QLabel(keyboard_simulator_window)
         line_label.setGeometry(QtCore.QRect(110, 300, 810, 40))
         line_label.setObjectName("line_label")
@@ -257,7 +215,7 @@ class MainWindowKeyboard(QMainWindow):
         return line_label
 
     @staticmethod
-    def create_text_label(keyboard_simulator_window):
+    def create_text_label(keyboard_simulator_window) -> QtWidgets.QLabel:
         text_label = QtWidgets.QLabel(keyboard_simulator_window)
         text_label.setGeometry(QtCore.QRect(110, 200, 810, 90))
         text_label.setObjectName("text_label")

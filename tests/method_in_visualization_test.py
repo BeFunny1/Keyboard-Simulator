@@ -114,22 +114,6 @@ class VisualizationTest(unittest.TestCase):
         }
         self.assertEqual(answer, data)
 
-    def test_split_a_string_by_index_empty_string(self):
-        self.assertEqual(
-            self.window.split_a_string_by_index('', 0), ('', '', ''))
-
-    def test_split_a_string_by_index_correct_string(self):
-        line = 'abrakadabra'
-        self.assertEqual(
-            self.window.split_a_string_by_index(line, 3),
-            ('abr', 'a', 'kadabra'))
-
-    def test_split_a_string_by_index_correct_string_with_space(self):
-        line = 'abrak adabra'
-        self.assertEqual(
-            self.window.split_a_string_by_index(line, 5),
-            ('abrak', ' ', 'adabra'))
-
     def test_select_letter_in_text(self):
         line = 'abrakadabra'
         self.assertEqual(
