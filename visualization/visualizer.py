@@ -13,6 +13,9 @@ class MainWindowKeyboard(QMainWindow):
                 = self.setupUi(self)
             self.logic_activity = None
 
+    def update_stopwatch(self, time: str):
+        self.labels['Время:']['related_item'].setText(time)
+
     @staticmethod
     def select_letter_in_text(line: str, index: int) -> str:
         line_after_symbol, symbol, line_before_symbol \
@@ -21,7 +24,8 @@ class MainWindowKeyboard(QMainWindow):
         return line_after_symbol + symbol + line_before_symbol
 
     def update_labels(self, accuracy, progress,
-                      number_invalid_symbols, number_entered_symbols):
+                      number_invalid_symbols,
+                      number_entered_symbols):
         self.labels['Знаки:']['related_item'].setText(
             str(number_entered_symbols))
         self.labels['Ошибки:']['related_item'].setText(
@@ -30,6 +34,10 @@ class MainWindowKeyboard(QMainWindow):
             str(accuracy) + '%')
         self.labels['Прогресс:']['related_item'].setValue(
             progress)
+
+    def update_speed(self, number_of_symbols_per_minute):
+        self.labels['Симв./мин.:']['related_item'].setText(
+            str(number_of_symbols_per_minute))
 
     def establish_communication(self, activity):
         self.logic_activity = activity
