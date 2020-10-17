@@ -13,11 +13,16 @@ class Simulator:
             worker = WorkWithText()
             self.text = worker.read_file('text1.txt')
             self.symbols = worker.split(self.text)
+            self.suggestions_in_the_text \
+                = worker.split_string_into_substrings(self.text, max_line_length=120)
+            self.suggestions_in_the_text.reverse()
+            self.current_suggestions_on_display = self.suggestions_in_the_text.pop()
 
             self.current_symbols = self.symbols.pop()
 
             self.stopwatch = self.create_stopwatch()
             self.stopwatch_time = QtCore.QTime(0, 0, 0)
+
         self.current_line = ''
 
         self.progress = 0
@@ -25,12 +30,12 @@ class Simulator:
         self.number_of_invalid_characters = 0
         self.accuracy = 100
 
-        self.is_first_activity = True
-
         self.key_press_time = []
         self.current_time_ns = 0
+        self.current_index_symbol = 0
 
-        self.index = 0
+        self.is_first_activity = True
+        self.the_end = False
 
     def create_stopwatch(self):
         stopwatch = QtCore.QTimer()
@@ -50,34 +55,37 @@ class Simulator:
         self.window.point_to_the_button(self.current_symbols.upper())
 
     def activity(self, key: str, number_key: int):
-        if self.is_first_activity:
-            self.stopwatch.start(1000)
-            self.is_first_activity = False
-        numbers_unaccountable_characters \
-            = self.config_handler.read_config_file(
-             'numbers_unaccountable_characters.json')
-        if key == self.current_symbols:
-            self.current_line += self.current_symbols
-            self.update_line(self.current_line)
-            if len(self.symbols) != 0:
-                self.current_symbols = self.symbols.pop()
-                self.window.point_to_the_button(self.current_symbols.upper())
-                self.index += 1
-            else:
-                self.window.point_to_the_button('')
-                self.stopwatch.stop()
-            self.number_of_entered_characters += 1
-            self.key_press_time.append(time.perf_counter_ns())
-            self.update_statistic_data()
-            self.update_text()
+        if not self.the_end:
+            if self.is_first_activity:
+                self.stopwatch.start(1000)
+                self.is_first_activity = False
+            numbers_unaccountable_characters \
+                = self.config_handler.read_config_file(
+                 'numbers_unaccountable_characters.json')
+            if key == self.current_symbols:
+                self.current_line += self.current_symbols
+                self.update_line(self.current_line)
+                if len(self.symbols) != 0:
+                    self.current_symbols = self.symbols.pop()
+                    self.window.point_to_the_button(self.current_symbols.upper())
+                    self.current_index_symbol += 1
+                else:
+                    self.window.point_to_the_button('')
+                    self.stopwatch.stop()
+                    self.the_end = True
+                if self.current_line == self.current_suggestions_on_display and not self.the_end:
+                    self.current_suggestions_on_display = self.suggestions_in_the_text.pop()
+                    self.current_line = ''
+                    self.update_line(self.current_line)
+                    self.current_index_symbol = 0
+                self.number_of_entered_characters += 1
+                self.key_press_time.append(time.perf_counter_ns())
+                self.update_statistic_data()
+                self.update_text()
 
-        elif number_key not in numbers_unaccountable_characters.values():
-            self.number_of_invalid_characters += 1
-            self.update_statistic_data()
-        max_length_line = 126
-        if len(self.current_line) == max_length_line:
-            self.current_line = ''
-            self.update_line(self.current_line)
+            elif number_key not in numbers_unaccountable_characters.values():
+                self.number_of_invalid_characters += 1
+                self.update_statistic_data()
 
     def calculate_number_of_symbols_in_last_second(self):
         current_time = time.perf_counter_ns()
@@ -107,7 +115,8 @@ class Simulator:
         self.window.set_line_label_text(new_line)
 
     def update_text(self):
-        self.window.set_text_and_select_letter(self.text, self.index)
+        self.window.set_text_and_select_letter(
+            self.current_suggestions_on_display, self.current_index_symbol)
 
 
 if __name__ == '__main__':
