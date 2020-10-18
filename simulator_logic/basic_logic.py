@@ -19,6 +19,8 @@ class Simulator:
             self.current_suggestions_on_display = self.suggestions_in_the_text.pop()
 
             self.current_symbols = self.symbols.pop()
+            self.language = ''
+            self.language = self.define_the_language(self.current_symbols)
 
             self.stopwatch = self.create_stopwatch()
             self.stopwatch_time = QtCore.QTime(0, 0, 0)
@@ -37,6 +39,23 @@ class Simulator:
         self.is_first_activity = True
         self.the_end = False
 
+    def define_the_language(self, symbol: str) -> str:
+        symbol = symbol.upper()
+        characters_of_the_language = self.config_handler.read_config_file(
+            'characters_of_the_language.json')
+        if self.language == '':
+            for language in characters_of_the_language:
+                if symbol in characters_of_the_language[language]:
+                    return language
+        else:
+            if symbol in characters_of_the_language[self.language]:
+                return self.language
+            else:
+                for language in characters_of_the_language:
+                    if symbol in characters_of_the_language[language]:
+                        return language
+        return 'russian'
+
     def create_stopwatch(self):
         stopwatch = QtCore.QTimer()
         stopwatch.timeout.connect(self.stopwatch_event)
@@ -52,7 +71,11 @@ class Simulator:
 
     def preparation(self):
         self.update_text()
-        self.window.point_to_the_button(self.current_symbols.upper())
+        if self.language != 'russian':
+            self.window.update_the_keyboard_layout('russian', self.language)
+        self.window.point_to_the_button(
+            first_part_of_the_key=self.language,
+            second_part_of_the_key=self.current_symbols)
 
     def activity(self, key: str, number_key: int):
         if not self.the_end:
@@ -67,10 +90,18 @@ class Simulator:
                 self.update_line(self.current_line)
                 if len(self.symbols) != 0:
                     self.current_symbols = self.symbols.pop()
-                    self.window.point_to_the_button(self.current_symbols.upper())
+
+                    language = self.define_the_language(self.current_symbols)
+                    if language != self.language:
+                        self.window.update_the_keyboard_layout(self.language, language)
+                        self.language = language
+
+                    self.window.point_to_the_button(
+                        first_part_of_the_key=self.language,
+                        second_part_of_the_key=self.current_symbols)
                     self.current_index_symbol += 1
                 else:
-                    self.window.point_to_the_button('')
+                    self.window.hide_all_buttons()
                     self.stopwatch.stop()
                     self.the_end = True
                 if self.current_line == self.current_suggestions_on_display and not self.the_end:

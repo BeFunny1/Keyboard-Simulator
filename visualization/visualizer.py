@@ -16,6 +16,14 @@ class MainWindowKeyboard(QMainWindow):
     def update_stopwatch(self, time: str):
         self.labels['Время:']['related_item'].setText(time)
 
+    def update_the_keyboard_layout(self, old_language: str, new_language: str):
+        characters_of_the_language = self.config_handler.read_config_file(
+            'symbols_on_the_keyboard_by_language.json')
+        for index, symbol in enumerate(characters_of_the_language[old_language]):
+            new_symbol = characters_of_the_language[new_language][index]
+            self.buttons[old_language + '_' + symbol].setText(new_symbol)
+            self.buttons[new_language + '_' + new_symbol] = self.buttons.pop(old_language + '_' + symbol)
+
     @staticmethod
     def select_letter_in_text(line: str, index: int) -> str:
         line_after_symbol, symbol, line_before_symbol \
@@ -45,15 +53,36 @@ class MainWindowKeyboard(QMainWindow):
     def keyPressEvent(self, event):
         self.logic_activity(event.text(), event.key())
 
-    def point_to_the_button(self, key: str):
+    def point_to_the_button(self, first_part_of_the_key: str, second_part_of_the_key: str):
         keyboard_shortcuts \
             = self.config_handler.read_config_file('keyboard_shortcuts.json')
-        if key in keyboard_shortcuts:
-            key = keyboard_shortcuts[key]
+        trial_key = f'{first_part_of_the_key}_{second_part_of_the_key}'
+        if second_part_of_the_key.isupper():
+            key = [f'{first_part_of_the_key}_{second_part_of_the_key.upper()}',
+                   f'{first_part_of_the_key}_Shift_R',
+                   f'{first_part_of_the_key}_Shift_L']
+        elif trial_key not in self.buttons:
+            for language in ['multi_language', first_part_of_the_key]:
+                if second_part_of_the_key in keyboard_shortcuts[language]:
+                    key = []
+                    for x in keyboard_shortcuts[language][second_part_of_the_key]:
+                        key.append(f'{first_part_of_the_key}_{x}')
+                    break
+            else:
+                key = f'{first_part_of_the_key}_{second_part_of_the_key.upper()}'
+        else:
+            key = trial_key
+        self.hide_all_buttons()
         for button in self.buttons:
-            result = button in key
-            self.buttons[button].setEnabled(result)
-            self.buttons[button].setDefault(result)
+            if button in key:
+                self.select_a_button(button)
+
+    def hide_all_buttons(self):
+        for button in self.buttons:
+            self.buttons[button].setStyleSheet("color: white;")
+
+    def select_a_button(self, key: str):
+        self.buttons[key].setStyleSheet("background-color: red; color: white;")
 
     def set_text_and_select_letter(self, text: str, index: int):
         text = self.select_letter_in_text(text, index)
@@ -86,6 +115,7 @@ class MainWindowKeyboard(QMainWindow):
 
     @staticmethod
     def customize_window(keyboard_simulator_window):
+        keyboard_simulator_window.setFocusPolicy(QtCore.Qt.NoFocus)
         keyboard_simulator_window.setObjectName("KeyboardSimulator")
         keyboard_simulator_window.setEnabled(True)
         keyboard_simulator_window.resize(1024, 768)
@@ -103,8 +133,7 @@ class MainWindowKeyboard(QMainWindow):
         for index in rows_and_indexes_for_row:
             row = rows_and_indexes_for_row[index]['row']
             x_start, y = rows_and_indexes_for_row[index]['indexes']
-            for i in range(len(row)):
-                key_name = row[i]
+            for i, key_name in enumerate(row):
                 data[key_name] = {}
                 data[key_name]['x'] = x_start + 60 * i
                 data[key_name]['y'] = y
@@ -136,7 +165,8 @@ class MainWindowKeyboard(QMainWindow):
             )
             button.setObjectName('button_' + key)
             button.setText(key)
-            buttons[key] = button
+            button.setEnabled(False)
+            buttons['russian_' + key] = button
         return buttons
 
     def get_data_for_labels(self) -> dict:
