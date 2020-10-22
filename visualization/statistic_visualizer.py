@@ -36,9 +36,10 @@ class StatisticVisualizer(QMainWindow):
             line_for_label = log_for_entering_parts_of_text[time]['line']
             score_for_label = log_for_entering_parts_of_text[time]['score']
             time_for_label = f'{time[0]}:{time[1]}'
-            text = f'Time interval: {time_for_label};\n' \
-                   f'Line: ...{line_for_label}...;\n' \
-                   f'Symbols score: {score_for_label}'
+            text = \
+                f'Time interval: {time_for_label};\n' \
+                f'Line: ...{line_for_label}...;\n' \
+                f'Symbols score: {score_for_label}'
             label.setText(text)
             data.append(label)
         return data
@@ -55,15 +56,18 @@ class StatisticVisualizer(QMainWindow):
         layouts = []
         for index in range(2):
             vertical_layout_widget = QtWidgets.QWidget(self.central_widget)
-            vertical_layout_widget.setGeometry(QtCore.QRect(710 * index + 10, 10, 620, 700))
-            vertical_layout_widget.setObjectName('verticalLayoutWidget' + str(index))
+            vertical_layout_widget.setGeometry(
+                QtCore.QRect(710 * index + 10, 10, 620, 700))
+            vertical_layout_widget.setObjectName(
+                'verticalLayoutWidget' + str(index))
             vertical_layout = QtWidgets.QVBoxLayout(vertical_layout_widget)
             vertical_layout.setContentsMargins(0, 0, 0, 0)
             vertical_layout.setObjectName('verticalLayout' + str(index))
             layouts.append(vertical_layout)
         return layouts
 
-    def create_line_chart(self, number_of_symbols_per_interval: dict) -> QChartView:
+    def create_line_chart(
+            self, number_of_symbols_per_interval: dict) -> QChartView:
         series = QLineSeries(self)
 
         series.append(0, 0)
@@ -92,8 +96,4 @@ class StatisticVisualizer(QMainWindow):
 
 
 if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    h = StatisticVisualizer()
-    h.setupUi(None, None)
-    h.show()
-    app.exec_()
+    pass

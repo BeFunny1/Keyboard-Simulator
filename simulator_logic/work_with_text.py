@@ -12,7 +12,8 @@ class WorkWithText:
         return symbols
 
     @staticmethod
-    def split_string_into_substrings(string: str, max_line_length: int) -> list:
+    def split_string_into_substrings(
+            string: str, max_line_length: int) -> list:
         substrings = []
         separators = [',', '.', ' ', ';', '?', '!']
         while True:

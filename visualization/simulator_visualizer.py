@@ -102,12 +102,12 @@ class MainWindowKeyboard(QMainWindow):
         line_label = self.create_line_label(keyboard_simulator_window)
         text_label = self.create_text_label(keyboard_simulator_window)
         timer = labels['Таймер:']['related_item']
-        lines = {
+        lines_size_coordinates = {
             1: [100, 150, 90, 3],
             2: [250, 150, 630, 3]
         }
-        for key in lines:
-            data = lines[key]
+        for key in lines_size_coordinates:
+            data = lines_size_coordinates[key]
             self.create_line(
                 data[0], data[1],
                 data[2], data[3],
@@ -193,6 +193,7 @@ class MainWindowKeyboard(QMainWindow):
             data[label]['height'] = 20
             data[label]['related_item']['height'] = 20
             index += 1
+        print(data)
         return data
 
     def create_labels_and_his_related_element(

@@ -37,7 +37,7 @@ class StatisticCalculating:
 
     @staticmethod
     def get_fast_typing_string(
-            text: str, number_of_characters_per_interval: dict):
+            text: str, number_of_characters_per_interval: dict) -> dict:
         data = {}
         start_index = 0
         end_index = 0
@@ -47,6 +47,7 @@ class StatisticCalculating:
             end_index += number_of_characters_per_interval[key]
             data[(prev_time, key)]['line'] = text[start_index:end_index]
             start_index = end_index
-            data[(prev_time, key)]['score'] = number_of_characters_per_interval[key]
+            data[(prev_time, key)]['score'] \
+                = number_of_characters_per_interval[key]
             prev_time = key
         return data

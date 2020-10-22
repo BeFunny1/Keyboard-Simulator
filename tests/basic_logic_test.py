@@ -9,7 +9,7 @@ class SimulatorTest(unittest.TestCase):
     def setUp(self):
         self.simulator = Simulator(None, for_test=True)
 
-    def test_calculate_number_of_symbols_in_last_second_usual_situation(self):
+    def test_calculate_number_of_symbols_in_last_second_usual_sit(self):
         current_time = time.time()
         nanoseconds_per_second = 1000000000
         key_press_time = [
@@ -23,9 +23,10 @@ class SimulatorTest(unittest.TestCase):
             current_time + 2 * nanoseconds_per_second,
         ]
         self.simulator.key_press_time = copy.copy(key_press_time)
-        self.assertEqual(2, self.simulator.calculate_number_of_symbols_in_last_second())
+        self.assertEqual(
+            2, self.simulator.calculate_number_of_symbols_in_last_second())
 
-    def test_calculate_number_of_symbols_in_last_second_unusual_situation(self):
+    def test_calculate_number_of_symbols_in_last_second_unusual_sit(self):
         current_time = time.perf_counter_ns()
         nanoseconds_per_second = 1000000000
         key_press_time = [
@@ -33,7 +34,8 @@ class SimulatorTest(unittest.TestCase):
             current_time - 3.5 * nanoseconds_per_second
         ]
         self.simulator.key_press_time = copy.copy(key_press_time)
-        self.assertEqual(0, self.simulator.calculate_number_of_symbols_in_last_second())
+        self.assertEqual(
+            0, self.simulator.calculate_number_of_symbols_in_last_second())
 
 
 if __name__ == '__main__':

@@ -72,45 +72,46 @@ class VisualizationTest(unittest.TestCase):
         answer = {
             'Знаки:':
                 {
-                    'related_item':
-                        {
-                            'text': '0', 'x': 320, 'y': 160,
-                            'weight': 90, 'height': 20
-                        },
-                    'x': 320, 'y': 130,
-                    'weight': 90, 'height': 20
-                },
+                    'related_item': {
+                        'text': '0', 'x': 240, 'weight': 90,
+                        'y': 160, 'height': 20},
+                    'x': 240, 'y': 130, 'weight': 90, 'height': 20},
+            'Симв./мин.:':
+                {
+                    'related_item': {
+                        'text': '0', 'x': 350, 'weight': 90,
+                        'y': 160, 'height': 20},
+                    'x': 350, 'y': 130, 'weight': 90, 'height': 20},
             'Ошибки:':
                 {
-                    'related_item':
-                        {
-                            'text': '0', 'x': 430, 'y': 160,
-                            'weight': 90, 'height': 20
-                        },
-                    'x': 430, 'y': 130,
-                    'weight': 90, 'height': 20
-                },
+                    'related_item': {
+                        'text': '0', 'x': 460, 'weight': 90,
+                        'y': 160, 'height': 20},
+                    'x': 460, 'y': 130, 'weight': 90, 'height': 20},
             'Точность:':
                 {
-                    'related_item':
-                        {
-                            'text': '100%', 'x': 540, 'y': 160,
-                            'weight': 90, 'height': 20
-                        },
-                    'x': 540, 'y': 130,
-                    'weight': 90, 'height': 20
-                },
+                    'related_item': {
+                        'text': '100%', 'x': 570, 'weight': 90,
+                        'y': 160, 'height': 20},
+                    'x': 570, 'y': 130, 'weight': 90, 'height': 20},
+            'Время:':
+                {
+                    'related_item': {
+                        'text': '00:00:00', 'x': 680, 'weight': 90,
+                        'y': 160, 'height': 20},
+                    'x': 680, 'y': 130, 'weight': 90, 'height': 20},
+            'Таймер:':
+                {
+                    'related_item': {
+                        'text': '', 'x': 790, 'weight': 90,
+                        'y': 160, 'height': 20},
+                    'x': 790, 'y': 130, 'weight': 90, 'height': 20},
             'Прогресс:':
                 {
-                    'related_item':
-                        {
-                            'text': '', 'x': 170, 'y': 160,
-                            'weight': 120, 'height': 20
-
-                        },
-                    'x': 180, 'y': 130,
-                    'weight': 90, 'height': 20
-                }
+                    'related_item': {
+                        'text': '', 'x': 90, 'weight': 120,
+                        'y': 160, 'height': 20},
+                    'x': 100, 'y': 130, 'weight': 90, 'height': 20}
         }
         self.assertEqual(answer, data)
 
