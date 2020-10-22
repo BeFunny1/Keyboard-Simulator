@@ -9,7 +9,7 @@ class MainWindowKeyboard(QMainWindow):
         self.config_handler = ConfigHandler()
         if not for_test:
             QMainWindow.__init__(self)
-            self.buttons, self.labels, self.text_label, self.line_label \
+            self.buttons, self.labels, self.text_label, self.line_label, self.timer \
                 = self.setupUi(self)
             self.logic_activity = None
 
@@ -78,11 +78,13 @@ class MainWindowKeyboard(QMainWindow):
                 self.select_a_button(button)
 
     def hide_all_buttons(self):
+        styles = self.config_handler.read_config_file('button_style.json')
         for button in self.buttons:
-            self.buttons[button].setStyleSheet("color: white;")
+            self.buttons[button].setStyleSheet(styles['hide'])
 
     def select_a_button(self, key: str):
-        self.buttons[key].setStyleSheet("background-color: red; color: white;")
+        styles = self.config_handler.read_config_file('button_style.json')
+        self.buttons[key].setStyleSheet(styles['press'])
 
     def set_text_and_select_letter(self, text: str, index: int):
         text = self.select_letter_in_text(text, index)
@@ -99,6 +101,7 @@ class MainWindowKeyboard(QMainWindow):
             keyboard_simulator_window)
         line_label = self.create_line_label(keyboard_simulator_window)
         text_label = self.create_text_label(keyboard_simulator_window)
+        timer = self.create_timer(keyboard_simulator_window)
         lines = {
             1: [180, 150, 90, 3],
             2: [330, 150, 510, 3]
@@ -111,18 +114,15 @@ class MainWindowKeyboard(QMainWindow):
                 keyboard_simulator_window
             )
         QtCore.QMetaObject.connectSlotsByName(keyboard_simulator_window)
-        return buttons, labels, text_label, line_label
+        return buttons, labels, text_label, line_label, timer
 
     @staticmethod
     def customize_window(keyboard_simulator_window):
         keyboard_simulator_window.setFocusPolicy(QtCore.Qt.NoFocus)
         keyboard_simulator_window.setObjectName("KeyboardSimulator")
-        keyboard_simulator_window.setEnabled(True)
-        keyboard_simulator_window.resize(1024, 768)
         keyboard_simulator_window.setMinimumSize(QtCore.QSize(1024, 768))
         keyboard_simulator_window.setMaximumSize(QtCore.QSize(1024, 768))
         keyboard_simulator_window.setBaseSize(QtCore.QSize(1024, 768))
-        keyboard_simulator_window.setAutoFillBackground(False)
         keyboard_simulator_window.setWindowTitle("Клавиатурный тренажёр")
 
     def get_data_for_buttons(self) -> dict:
@@ -219,6 +219,15 @@ class MainWindowKeyboard(QMainWindow):
             labels_and_related_items[key]['label'] = label
             labels_and_related_items[key]['related_item'] = related_item
         return labels_and_related_items
+
+    @staticmethod
+    def create_timer(keyboard_simulator_window) -> QtWidgets.QTimeEdit:
+        timer = QtWidgets.QTimeEdit(keyboard_simulator_window)
+        timer.setGeometry(QtCore.QRect(760, 100, 90, 20))
+        timer.setReadOnly(False)
+        timer.setObjectName("timeEdit")
+        timer.setDisplayFormat("hh:mm:ss")
+        return timer
 
     @staticmethod
     def create_progress_bar(data, keyboard_simulator_window) \

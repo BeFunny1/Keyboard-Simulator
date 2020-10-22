@@ -1,6 +1,6 @@
 import unittest
 
-from visualization.visualizer import MainWindowKeyboard
+from visualization.simulator_visualizer import MainWindowKeyboard
 
 
 class VisualizationTest(unittest.TestCase):

@@ -1,6 +1,13 @@
+import sys
+
+from PyQt5.uic.properties import QtWidgets
+
 from simulator_logic.work_with_text import WorkWithText
+from visualization.statistic_visualizer import StatisticVisualizer
 from work_with_confg.config_handler import ConfigHandler
+from simulator_logic.calculate_statistic import StatisticCalculating
 from PyQt5 import QtCore
+from PyQt5.QtWidgets import QApplication, QMainWindow
 import time
 
 
@@ -26,6 +33,9 @@ class Simulator:
             self.stopwatch_time = QtCore.QTime(0, 0, 0)
 
         self.current_line = ''
+
+        self.start_time = 0
+        self.timer = None
 
         self.progress = 0
         self.number_of_entered_characters = 0
@@ -68,6 +78,8 @@ class Simulator:
         number_of_symbols_per_minute \
             = self.calculate_number_of_symbols_in_last_second() * 60
         self.window.update_speed(number_of_symbols_per_minute)
+        if self.stopwatch_time == self.timer:
+            self.stop_the_workout()
 
     def preparation(self):
         self.update_text()
@@ -81,10 +93,13 @@ class Simulator:
         if not self.the_end:
             if self.is_first_activity:
                 self.stopwatch.start(1000)
+                self.start_time = time.time()
+                self.read_time_from_the_timer()
                 self.is_first_activity = False
+
             numbers_unaccountable_characters \
                 = self.config_handler.read_config_file(
-                 'numbers_unaccountable_characters.json')
+                'numbers_unaccountable_characters.json')
             if key == self.current_symbols:
                 self.current_line += self.current_symbols
                 self.update_line(self.current_line)
@@ -100,17 +115,14 @@ class Simulator:
                         first_part_of_the_key=self.language,
                         second_part_of_the_key=self.current_symbols)
                     self.current_index_symbol += 1
+
                 else:
-                    self.window.hide_all_buttons()
-                    self.stopwatch.stop()
-                    self.the_end = True
-                if self.current_line == self.current_suggestions_on_display and not self.the_end:
-                    self.current_suggestions_on_display = self.suggestions_in_the_text.pop()
-                    self.current_line = ''
-                    self.update_line(self.current_line)
-                    self.current_index_symbol = 0
+                    self.stop_the_workout()
+                if self.current_line == self.current_suggestions_on_display \
+                        and not self.the_end:
+                    self.reset_input_line()
                 self.number_of_entered_characters += 1
-                self.key_press_time.append(time.perf_counter_ns())
+                self.key_press_time.append(time.time() - self.start_time)
                 self.update_statistic_data()
                 self.update_text()
 
@@ -118,24 +130,60 @@ class Simulator:
                 self.number_of_invalid_characters += 1
                 self.update_statistic_data()
 
+    def calculate_statistic(self) -> (dict, dict):
+        calculator = StatisticCalculating()
+        number_of_characters_per_second \
+            = calculator.get_count_the_number_of_repetitions(
+              self.key_press_time)
+        number_of_characters_per_interval \
+            = calculator.calculate_data_based_on_the_interval(
+              number_of_characters_per_second, interval=10)
+        data = calculator.get_fast_typing_string(
+            self.text, number_of_characters_per_interval)
+        return number_of_characters_per_interval, data
+
+    def create_statistic_window(self, number_of_symbols_per_interval: dict,
+                                log_for_entering_parts_of_text: dict):
+        self.statistic_window = StatisticVisualizer()
+        self.statistic_window.setupUi(number_of_symbols_per_interval, log_for_entering_parts_of_text)
+        self.statistic_window.show()
+
+    def reset_input_line(self):
+        self.current_suggestions_on_display = self.suggestions_in_the_text.pop()
+        self.current_line = ''
+        self.update_line(self.current_line)
+        self.current_index_symbol = 0
+
+    def stop_the_workout(self):
+        self.window.hide_all_buttons()
+        self.stopwatch.stop()
+        self.the_end = True
+
+        number_of_symbols_per_interval, log_for_entering_parts_of_text\
+            = self.calculate_statistic()
+        self.create_statistic_window(
+            number_of_symbols_per_interval,
+            log_for_entering_parts_of_text)
+
+    def read_time_from_the_timer(self):
+        timer = self.window.timer.time()
+        self.window.timer.setReadOnly(True)
+        if timer != QtCore.QTime(0, 0, 0):
+            self.timer = timer
+        self.window.setFocusPolicy(QtCore.Qt.NoFocus)
+
     def calculate_number_of_symbols_in_last_second(self):
-        current_time = time.perf_counter_ns()
-        nanoseconds_per_second = 1000000000
-        index_of_the_first_matching_element = None
+        current_time = time.time()
+        number_of_characters_entered = 0
         for index, element in enumerate(self.key_press_time):
-            if current_time - element < nanoseconds_per_second:
-                index_of_the_first_matching_element = index
-                break
-        if index_of_the_first_matching_element is not None:
-            del self.key_press_time[:index_of_the_first_matching_element]
-        else:
-            self.key_press_time.clear()
-        return len(self.key_press_time)
+            if current_time - element < 1:
+                number_of_characters_entered += 1
+        return number_of_characters_entered
 
     def update_statistic_data(self):
         self.accuracy = round((self.number_of_entered_characters /
-                              (self.number_of_entered_characters +
-                               self.number_of_invalid_characters)) * 100)
+                               (self.number_of_entered_characters +
+                                self.number_of_invalid_characters)) * 100)
         self.progress = round((self.number_of_entered_characters /
                                len(self.text)) * 100)
         self.window.update_labels(self.accuracy, self.progress,

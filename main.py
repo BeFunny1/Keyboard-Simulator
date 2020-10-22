@@ -2,7 +2,7 @@ import sys
 from PyQt5.QtWidgets import QApplication
 
 from simulator_logic.basic_logic import Simulator
-from visualization.visualizer import MainWindowKeyboard
+from visualization.simulator_visualizer import MainWindowKeyboard
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
@@ -14,4 +14,4 @@ if __name__ == '__main__':
     simulator.preparation()
 
     user_interface.show()
-    sys.exit(app.exec_())
+    app.exec_()
