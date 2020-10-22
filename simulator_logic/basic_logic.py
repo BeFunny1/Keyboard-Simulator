@@ -175,7 +175,7 @@ class Simulator:
         self.window.focusWidget().clearFocus()
 
     def calculate_number_of_symbols_in_last_second(self) -> int:
-        current_time = time.time()
+        current_time = time.time() - self.start_time
         number_of_characters_entered = 0
         for index, element in enumerate(self.key_press_time):
             if current_time - element < 1:

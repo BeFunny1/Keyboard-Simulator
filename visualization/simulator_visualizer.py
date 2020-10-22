@@ -193,7 +193,6 @@ class MainWindowKeyboard(QMainWindow):
             data[label]['height'] = 20
             data[label]['related_item']['height'] = 20
             index += 1
-        print(data)
         return data
 
     def create_labels_and_his_related_element(
