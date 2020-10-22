@@ -99,8 +99,9 @@ class Simulator:
 
             numbers_unaccountable_characters \
                 = self.config_handler.read_config_file(
-                'numbers_unaccountable_characters.json')
+                  'numbers_unaccountable_characters.json')
             if key == self.current_symbols:
+                self.key_press_time.append(time.time() - self.start_time)
                 self.current_line += self.current_symbols
                 self.update_line(self.current_line)
                 if len(self.symbols) != 0:
@@ -122,7 +123,6 @@ class Simulator:
                         and not self.the_end:
                     self.reset_input_line()
                 self.number_of_entered_characters += 1
-                self.key_press_time.append(time.time() - self.start_time)
                 self.update_statistic_data()
                 self.update_text()
 
@@ -134,10 +134,10 @@ class Simulator:
         calculator = StatisticCalculating()
         number_of_characters_per_second \
             = calculator.get_count_the_number_of_repetitions(
-              self.key_press_time)
+            self.key_press_time)
         number_of_characters_per_interval \
             = calculator.calculate_data_based_on_the_interval(
-              number_of_characters_per_second, interval=10)
+            number_of_characters_per_second, interval=10)
         data = calculator.get_fast_typing_string(
             self.text, number_of_characters_per_interval)
         return number_of_characters_per_interval, data
@@ -159,7 +159,7 @@ class Simulator:
         self.stopwatch.stop()
         self.the_end = True
 
-        number_of_symbols_per_interval, log_for_entering_parts_of_text\
+        number_of_symbols_per_interval, log_for_entering_parts_of_text \
             = self.calculate_statistic()
         self.create_statistic_window(
             number_of_symbols_per_interval,

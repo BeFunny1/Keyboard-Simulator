@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel
 import sys
 from PyQt5.QtChart import QChart, QChartView, QLineSeries, QValueAxis
 from PyQt5.QtGui import QPainter
@@ -13,17 +13,38 @@ class StatisticVisualizer(QMainWindow):
         self.central_widget.setObjectName("central_widget")
 
     def setupUi(self, number_of_symbols_per_interval: dict,
-                log_for_entering_parts_of_text: dict):
+                log_for_entering_parts_of_text: dict) -> None:
         self.customize_window(self)
 
         layouts = self.create_layouts()
 
         chart_view = self.create_line_chart(number_of_symbols_per_interval)
         layouts[0].addWidget(chart_view)
+
+        labels = self.create_labels(log_for_entering_parts_of_text)
+        for label in labels:
+            layouts[1].addWidget(label)
         self.setCentralWidget(self.central_widget)
 
     @staticmethod
-    def customize_window(statistic_visualizer_window):
+    def create_labels(log_for_entering_parts_of_text: dict) -> [QLabel]:
+        data = []
+        for time in log_for_entering_parts_of_text:
+            label = QLabel()
+            label.setObjectName('label'+str(time))
+
+            line_for_label = log_for_entering_parts_of_text[time]['line']
+            score_for_label = log_for_entering_parts_of_text[time]['score']
+            time_for_label = f'{time[0]}:{time[1]}'
+            text = f'Time interval: {time_for_label};\n' \
+                   f'Line: ...{line_for_label}...;\n' \
+                   f'Symbols score: {score_for_label}'
+            label.setText(text)
+            data.append(label)
+        return data
+
+    @staticmethod
+    def customize_window(statistic_visualizer_window) -> None:
         statistic_visualizer_window.setObjectName("StatisticVisualizer")
         statistic_visualizer_window.setMinimumSize(QtCore.QSize(1280, 720))
         statistic_visualizer_window.setMaximumSize(QtCore.QSize(1280, 720))
@@ -42,7 +63,7 @@ class StatisticVisualizer(QMainWindow):
             layouts.append(vertical_layout)
         return layouts
 
-    def create_line_chart(self, number_of_symbols_per_interval: dict):
+    def create_line_chart(self, number_of_symbols_per_interval: dict) -> QChartView:
         series = QLineSeries(self)
 
         series.append(0, 0)

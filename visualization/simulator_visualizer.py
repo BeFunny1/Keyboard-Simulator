@@ -101,10 +101,10 @@ class MainWindowKeyboard(QMainWindow):
             keyboard_simulator_window)
         line_label = self.create_line_label(keyboard_simulator_window)
         text_label = self.create_text_label(keyboard_simulator_window)
-        timer = self.create_timer(keyboard_simulator_window)
+        timer = labels['Таймер:']['related_item']
         lines = {
-            1: [180, 150, 90, 3],
-            2: [330, 150, 510, 3]
+            1: [100, 150, 90, 3],
+            2: [250, 150, 630, 3]
         }
         for key in lines:
             data = lines[key]
@@ -178,14 +178,14 @@ class MainWindowKeyboard(QMainWindow):
             data[label]['related_item'] = {}
             related_item_default_text = labels[label]
             data[label]['related_item']['text'] = related_item_default_text
-            if label != 'Прогресс:':
-                data[label]['x'] = 320 + index * 110
-                data[label]['related_item']['x'] = 320 + index * 110
-                data[label]['related_item']['weight'] = 90
-            else:
-                data[label]['x'] = 180
-                data[label]['related_item']['x'] = 170
+            if label == 'Прогресс:':
+                data[label]['x'] = 100
+                data[label]['related_item']['x'] = 90
                 data[label]['related_item']['weight'] = 120
+            else:
+                data[label]['x'] = 240 + index * 110
+                data[label]['related_item']['x'] = 240 + index * 110
+                data[label]['related_item']['weight'] = 90
             data[label]['y'] = 130
             data[label]['related_item']['y'] = 160
             data[label]['weight'] = 90
@@ -204,15 +204,19 @@ class MainWindowKeyboard(QMainWindow):
                 data[key], key, keyboard_simulator_window
             )
             data_about_related_item = data[key]['related_item']
-            if key != 'Прогресс:':
+            if key == 'Прогресс:':
+                related_item = self.create_progress_bar(
+                    data_about_related_item,
+                    keyboard_simulator_window
+                )
+            elif key == 'Таймер:':
+                related_item = self.create_timer(
+                    data_about_related_item,
+                    keyboard_simulator_window)
+            else:
                 related_item = self.create_label(
                     data_about_related_item,
                     data_about_related_item['text'],
-                    keyboard_simulator_window
-                )
-            else:
-                related_item = self.create_progress_bar(
-                    data_about_related_item,
                     keyboard_simulator_window
                 )
             labels_and_related_items[key] = {}
@@ -221,9 +225,11 @@ class MainWindowKeyboard(QMainWindow):
         return labels_and_related_items
 
     @staticmethod
-    def create_timer(keyboard_simulator_window) -> QtWidgets.QTimeEdit:
+    def create_timer(data: dict, keyboard_simulator_window) -> QtWidgets.QTimeEdit:
         timer = QtWidgets.QTimeEdit(keyboard_simulator_window)
-        timer.setGeometry(QtCore.QRect(760, 100, 90, 20))
+        x, y, weight, height \
+            = data['x'], data['y'], data['weight'], data['height']
+        timer.setGeometry(QtCore.QRect(x, y, weight, height))
         timer.setReadOnly(False)
         timer.setObjectName("timeEdit")
         timer.setDisplayFormat("hh:mm:ss")
@@ -241,7 +247,7 @@ class MainWindowKeyboard(QMainWindow):
         return progress_bar
 
     @staticmethod
-    def create_label(data, text, keyboard_simulator_window) \
+    def create_label(data: dict, text: str, keyboard_simulator_window) \
             -> QtWidgets.QLabel:
         x, y, weight, height \
             = data['x'], data['y'], data['weight'], data['height']
